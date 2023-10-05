@@ -1,4 +1,5 @@
 global
+
         log /dev/log    local0
         log /dev/log    local1 notice
         chroot /var/lib/haproxy
@@ -42,8 +43,8 @@ listen joram
         bind :80
         mode http
         balance roundrobin
-        server 971-web-01 54.87.159.33:80 check
-        server 971-web-02 54.237.54.2:80 check
+        server web-01 54.87.159.33:80 check
+        server web-02 54.237.54.2:80 check
 frontend www-http
         bind :80
         reqadd X-Forwarded-Proto:\ http
@@ -54,5 +55,5 @@ frontend www-https
         default_backend web-backend
 backend web-backend
         redirect scheme https if !{ ssl_fc }
-        server 971-web-01 54.87.159.33:80 check
-        server 971-web-02 54.237.54.2:80 check
+        server web-01 54.87.159.33:80 check
+        server web-02 54.237.54.2:80 check
