@@ -1,41 +1,18 @@
 #!/usr/bin/python3
-"""
-Script that, using this REST API, for a given employee ID, returns
-information about his/her TODO list progress
-and export data in the JSON format.
-"""
-
+"""Exports to-do list information of all employees to JSON format."""
 import json
 import requests
-from sys import argv
-
 
 if __name__ == "__main__":
+    url = "https://jsonplaceholder.typicode.com/"
+    users = requests.get(url + "users").json()
 
-    sessionReq = requests.Session()
-
-    idEmp = argv[1]
-    idURL = 'https://jsonplaceholder.typicode.com/users/{}/todos'.format(idEmp)
-    nameURL = 'https://jsonplaceholder.typicode.com/users/{}'.format(idEmp)
-
-    employee = sessionReq.get(idURL)
-    employeeName = sessionReq.get(nameURL)
-
-    json_req = employee.json()
-    usr = employeeName.json()['username']
-
-    totalTasks = []
-    updateUser = {}
-
-    for all_Emp in json_req:
-        totalTasks.append(
-            {
-                "task": all_Emp.get('title'),
-                "completed": all_Emp.get('completed'),
-                "username": usr,
-            })
-    updateUser[idEmp] = totalTasks
-
-    file_Json = idEmp + ".json"
-    with open(file_Json, 'w') as f:
-        json.dump(updateUser, f)
+    with open("todo_all_employees.json", "w") as jsonfile:
+        json.dump({
+            u.get("id"): [{
+                "task": t.get("title"),
+                "completed": t.get("completed"),
+                "username": u.get("username")
+            } for t in requests.get(url + "todos",
+                                    params={"userId": u.get("id")}).json()]
+            for u in users}, jsonfile)
